@@ -1,0 +1,407 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>abc</groupId>
+  <artifactId>xyz</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  
+  <!-- 4 XD -->
+  <parent>
+    <groupId>org.springframework.xd</groupId>
+    <artifactId>spring-xd-module-parent</artifactId>
+    <version>1.3.1.RELEASE</version>
+    <!--relativePath></relativePath-->
+  </parent>
+
+
+  <name>Déploiement import TODO: mettre ici le nom de ce qui doit être importé</name>
+
+  <properties>
+    <sas.version>TODO: mettre ici la version du SAS à utiliser. Les versions du sas sont disponibles ici : http://srvic/nexus/content/repositories/releases/eu/els/sie/xdev/flash/xf-sas/</sas.version>
+    <xf-lib.version>3.0.8</xf-lib.version>
+    <gaulois.config.file>cp:/import-1.xml</gaulois.config.file>
+    <!-- ne devrait pas changer d'un projet à l'autre -->
+    <saxon.version>9.7.0.13</saxon.version>
+    <saxon.license.version>9.7</saxon.license.version>
+    <!-- TODO : vérifier que c'est la dernière 1.03.x disponible : http://repo1.maven.org/maven2/top/marchand/xml/gaulois-pipe/ -->
+    <gaulois.version>1.03.02</gaulois.version>
+    <log4j.version>2.6.2</log4j.version>
+    <generic.import.version>1.0.3</generic.import.version>
+  </properties>
+
+  <scm>
+    <developerConnection>scm:git:git@bitbucket.org:elsgestion/sie-flash-prio-import-dep-efl-cxml.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>sie.xd.priorisation.flash.importer</groupId>
+      <artifactId>sie-prio-dep-generic-importer</artifactId>
+      <version>${generic.import.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>extern.net.sf.saxon</groupId>
+      <artifactId>saxonee</artifactId>
+      <version>${saxon.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>top.marchand.xml</groupId>
+      <artifactId>gaulois-pipe</artifactId>
+      <version>${gaulois.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-jcl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-slf4j-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.21</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jcl</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.els.sie.xdev.flash</groupId>
+      <artifactId>xf-sas</artifactId>
+      <version>${sas.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.els.sie.xdev.flash</groupId>
+      <artifactId>xf-lib</artifactId>
+      <version>${xf-lib.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.els.sie.xd.cp.protocol</groupId>
+      <artifactId>xd-cp-protocol</artifactId>
+      <version>0.0.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- génération du catalogue -->
+      <plugin>
+        <groupId>top.marchand.xml.maven</groupId>
+        <artifactId>catalogBuilder-maven-plugin</artifactId>
+        <version>1.0.4-RC4</version>
+        <executions>
+          <execution>
+            <id>toRun</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>catalog</goal>
+            </goals>
+            <configuration>
+              <includeCurrentArtifact>true</includeCurrentArtifact>
+            </configuration>
+          </execution>
+          <execution>
+            <id>toPackage</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>catalog</goal>
+            </goals>
+            <configuration>
+              <rewriteToProtocol>cp:/</rewriteToProtocol>
+              <includeCurrentArtifact>true</includeCurrentArtifact>
+              <catalogFileName>target/classes/catalog.xml</catalogFileName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- nettoyage du catalog généré -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>clean-all</id>
+            <phase>pre-clean</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo>Suppression du catalogue</echo>
+                <delete file="${basedir}/catalog.xml" failonerror="false" />
+                <echo>Suppression des fichiers de config Spring</echo>
+                <delete failonerror="false">
+                  <fileset dir="${basedir}/src/main/resources/config" includes="xd-flash-importer.*" />
+                </delete>
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <!-- on va vérifier que l'URI dans le fichier n'est pas un truc du genre cp:/xf-sas:/toto.xml, ce qui serait invalide -->
+              <target xmlns:if="ant:if">
+                <property file="target/classes/config/META-INF/eu.lefebvre-sarrut.dep.properties"/>
+                <script language="javascript">
+                  s = project.getProperty('gaulois-config-file').substring(4);
+                  // create property for later use
+                  project.setProperty('gcfSub', s);
+                </script>
+                <condition property="invalid.gpuri">
+                  <contains string="${gcfSub}" substring=":"/>
+                </condition>
+                <echo if:set="invalid.gpuri">[ERROR] Lorsque vous utilisez une URI pour le fichier gaulois-pipe, il faut redéfinir précisemment la bonne URI dans le fichier src/main/resources/config/META-INF/eu.lefebvre-sarrut.dep.properties</echo>
+                <fail if="invalid.gpuri"></fail>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- gaulois-compilation -->
+      <plugin>
+        <groupId>top.marchand.xml.maven</groupId>
+        <artifactId>gaulois-compiler-maven-plugin</artifactId>
+        <version>1.0.0-RC7</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>gaulois-compiler</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>extern.net.sf.saxon</groupId>
+            <artifactId>saxonee</artifactId>
+            <version>${saxon.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>extern.net.sf.saxon</groupId>
+            <artifactId>saxonee-license</artifactId>
+            <version>${saxon.license.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <catalog>catalog.xml</catalog>
+          <gauloisPipeFilesets>
+            <gauloisPipeFileset>
+              <!-- cas où le pipe est dans les sources de ce projet -->
+              <dir>src/main/pipes</dir>
+              <includes>
+                <include>${gaulois.config.file}</include>
+              </includes>
+              <!-- cas où le pipe est dans un autre projet, et accedé au travers d'une UIR du genre artifatId:/package/pipe.xml -->
+              <!-- uri>${gaulois.config.file}</uri -->
+            </gauloisPipeFileset>
+          </gauloisPipeFilesets>
+          <!-- au cas où le fichier gaulois-pipe doit être transformé pour l'adapter au generic importer -->
+          <!-- postCompiler>src/build/GC-postCompiler.xsl</postCompiler -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>unpack-xd</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <!-- extraction des fichiers nécessaires à Spring XD -->
+                <artifactItem>
+                  <groupId>sie.xd.priorisation.flash.importer</groupId>
+                  <artifactId>sie-prio-dep-generic-importer</artifactId>
+                  <version>${generic.import.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <includes>config/xd-flash-importer.*</includes>
+              <outputDirectory>target/classes</outputDirectory>
+            </configuration>
+          </execution>
+          <!-- extraction des ressources utilisées par les XSL -->
+          <!-- créer une exécution par artifactId contenant des resources à récupérer -->
+          <!-- execution>
+            <id>unpack-sas</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>eu.els.sie.xdev.flash</groupId>
+                  <artifactId>xf-sas</artifactId>
+                  <version>${sas.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <includes>xf-sas/efl/revues_cxml/**/*.xml</includes>
+              <excludes>xf-sas/efl/revues_cxml/tools/**/*.xml,META-INF/**</excludes>
+              <outputDirectory>target/classes</outputDirectory>
+            </configuration>
+          </execution -->
+          <!-- Ajout des ressources liées au projet xf-lib -->
+          <!-- execution>
+            <id>unpack-xf-lib</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>eu.els.sie.xdev.flash</groupId>
+                  <artifactId>xf-lib</artifactId>
+                  <version>${xf-lib.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <includes>xf-lib/resources/efl/*.xml</includes>
+              <outputDirectory>target/classes</outputDirectory>
+            </configuration>
+          </execution -->
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <!-- a activer quand on fait une release -->
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>3.0.0-M1</version>
+            <executions>
+              <execution>
+                <id>enforce-no-snapshots</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireReleaseDeps>
+                      <message>No Snapshots Allowed!</message>
+                    </requireReleaseDeps>
+                  </rules>
+                  <fail>true</fail>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>test</id>
+      <activation>
+        <!-- actif par défaut. Si un autre profile est activé par la ligne de commande, tous les profile actifs par défaut sont désactivés -->
+        <!-- donc lorsque le profile "release" est activé, celui-ci est désactivé -->
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>2.20.1</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>nexus-snapshots</id>
+      <url>http://srvic/nexus/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>nexus-releases</id>
+      <url>http://srvic/nexus/content/repositories/releases</url>
+    </repository>
+  </distributionManagement>
+</project>
